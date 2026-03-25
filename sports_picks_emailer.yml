@@ -1,0 +1,31 @@
+name: Schmidtty's Daily Picks Emailer
+
+on:
+  schedule:
+    # 14:00 UTC = 8:00 AM CST (UTC-6, Nov–Mar)
+    # Change to 13:00 UTC during Daylight Saving Time (Mar–Nov)
+    - cron: '0 14 * * *'
+  workflow_dispatch:  # allows manual trigger from GitHub UI
+
+jobs:
+  send-picks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Run picks emailer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python sports_picks_emailer.py
